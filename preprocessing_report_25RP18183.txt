@@ -1,0 +1,45 @@
+=================================================================
+PREPROCESSING REPORT - ITLDM801 CAT
+Student Registration Number: 25RP18183
+Date: 20-February-2026
+Dataset: Rwanda Polytechnic Graduates Classification
+=================================================================
+
+1. ORIGINAL DATASET
+   - File: rp_students_20000.csv
+   - Records: 20,000
+   - Features: 10 (Student_ID, 6 subjects, Total_Score, Percentage, Class)
+
+2. DATA ISSUES INTRODUCED
+   a) Missing Values: ~1.5% injected in Machine_learning, Data_mining, Cyber_security (~300 values each)
+   b) Duplicates: 200 duplicate rows added (dataset grew to 20,200 rows)
+   c) Outliers: 120 extreme values (150 or -20) injected into random subject columns
+   d) Noise: Gaussian noise (mean=0, std=0.5) added to Machine_learning scores of 800 records
+   e) Inconsistencies: 150 Student_ID records modified with mixed case and extra spaces
+
+3. CLEANING METHODS APPLIED
+   a) Missing Values: Median imputation for Machine_learning, Data_mining, Cyber_security
+      - Justification: Median is robust to extreme outlier values
+   b) Duplicates: Identified and removed all duplicate rows using drop_duplicates()
+   c) Outliers: Clipped all subject scores to valid range [0, 100]
+   d) Inconsistencies: Student_ID standardized using strip().upper()
+
+4. FEATURE ENGINEERING
+   - MinMaxScaler applied to 6 subject columns -> _scaled features created
+   - Decimal scaling applied to Data_mining -> Data_mining_decimal_scaled
+   - Total_Score recalculated as sum of 6 subjects
+   - Percentage recalculated as (Total_Score / 600) * 100
+   - Class assigned based on percentage thresholds
+   - Percentage_Bin created for discrete performance grouping
+
+5. DATASET SIZE COMPARISON
+   - Before preprocessing (after injections): 20,200 rows x 10 columns
+   - After preprocessing (cleaned): ~20,000 rows (duplicates removed)
+   - Final feature count: 10 original + scaled features + derived features
+
+6. DATA QUALITY OUTCOME
+   - Missing values: 0 remaining
+   - Duplicates: 0 remaining
+   - Out-of-range scores: 0 remaining
+   - Student_ID format: Standardized (uppercase, no spaces)
+=================================================================
