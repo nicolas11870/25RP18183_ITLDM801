@@ -3,43 +3,104 @@ PREPROCESSING REPORT - ITLDM801 CAT
 Student Registration Number: 25RP18183
 Date: 20-February-2026
 Dataset: Rwanda Polytechnic Graduates Classification
+Module: ITLDM801 - Data Mining and Data Warehousing
 =================================================================
 
 1. ORIGINAL DATASET
    - File: rp_students_20000.csv
    - Records: 20,000
-   - Features: 10 (Student_ID, 6 subjects, Total_Score, Percentage, Class)
+   - Features: 10 (Student_ID, Machine_learning, Data_mining,
+     Cyber_security, Software_engineering, Research_methodology,
+     Blockchain, Total_Score, Percentage, Class)
+   - Class Distribution (original):
+       Fail          : 4,000 students
+       Pass Class    : 4,000 students
+       Lower Class   : 4,000 students
+       Second Class  : 4,000 students
+       First Class   : 4,000 students
 
 2. DATA ISSUES INTRODUCED
-   a) Missing Values: ~1.5% injected in Machine_learning, Data_mining, Cyber_security (~300 values each)
-   b) Duplicates: 200 duplicate rows added (dataset grew to 20,200 rows)
-   c) Outliers: 120 extreme values (150 or -20) injected into random subject columns
-   d) Noise: Gaussian noise (mean=0, std=0.5) added to Machine_learning scores of 800 records
-   e) Inconsistencies: 150 Student_ID records modified with mixed case and extra spaces
+   a) Missing Values: ~1.5% injected in Machine_learning,
+      Data_mining, Cyber_security (~300 values each, ~900 total)
+   b) Duplicates: 200 duplicate rows added
+      (dataset grew from 20,000 to 20,200 rows)
+   c) Outliers: 120 extreme values (150 or -20) injected into
+      randomly selected student records and subject columns
+   d) Noise: Gaussian noise (mean=0, std=0.5) added to
+      Machine_learning scores of 800 randomly selected records
+      to simulate minor measurement/recording variations
+   e) Inconsistencies: 150 Student_ID records modified with
+      mixed case (lowercase, swapcase) and extra spaces
 
 3. CLEANING METHODS APPLIED
-   a) Missing Values: Median imputation for Machine_learning, Data_mining, Cyber_security
-      - Justification: Median is robust to extreme outlier values
-   b) Duplicates: Identified and removed all duplicate rows using drop_duplicates()
-   c) Outliers: Clipped all subject scores to valid range [0, 100]
-   d) Inconsistencies: Student_ID standardized using strip().upper()
+   a) Missing Values: Median imputation applied to
+      Machine_learning, Data_mining, Cyber_security
+      - Justification: Median is robust to the extreme outlier
+        values (150, -20) that were injected in step (c),
+        unlike mean which would be skewed by those values
+   b) Duplicates: drop_duplicates() applied
+      - 196 duplicate rows detected and removed
+        (some injected duplicates had NaN variations)
+   c) Outliers: All subject scores clipped to valid range [0,100]
+      - Method: pandas clip(lower=0, upper=100)
+      - Justification: Student scores cannot exceed 100 or
+        fall below 0 in any academic context
+   d) Noise: Treated implicitly by clipping scores to [0,100]
+      ensuring no noisy values fall outside the valid range
+   e) Inconsistencies: Student_ID standardized using
+      str.strip().str.upper() to ensure uniform format
 
 4. FEATURE ENGINEERING
-   - MinMaxScaler applied to 6 subject columns -> _scaled features created
-   - Decimal scaling applied to Data_mining -> Data_mining_decimal_scaled
-   - Total_Score recalculated as sum of 6 subjects
+   - MinMaxScaler applied to all 6 subject columns
+     -> 6 new _scaled features appended (range: 0 to 1)
+   - Decimal scaling applied to Data_mining
+     -> Data_mining_decimal_scaled feature created
+   - Total_Score recalculated as sum of 6 cleaned subject scores
    - Percentage recalculated as (Total_Score / 600) * 100
-   - Class assigned based on percentage thresholds
-   - Percentage_Bin created for discrete performance grouping
+   - Class assigned using predefined percentage thresholds:
+       Fail         : Percentage < 40
+       Pass Class   : 40 <= Percentage < 50
+       Lower Class  : 50 <= Percentage < 60
+       Second Class : 60 <= Percentage < 70
+       First Class  : Percentage >= 70
+   - Percentage_Bin created using pd.cut() for discrete
+     performance grouping (same boundaries as Class)
 
 5. DATASET SIZE COMPARISON
-   - Before preprocessing (after injections): 20,200 rows x 10 columns
-   - After preprocessing (cleaned): ~20,000 rows (duplicates removed)
-   - Final feature count: 10 original + scaled features + derived features
+   - Original dataset          : 20,000 rows x 10 columns
+   - After injecting issues    : 20,200 rows x 10 columns
+   - After cleaning            : 20,004 rows x 10 columns
+   - Final feature count       : 19 columns total
+     (10 original + 6 scaled + 1 decimal scaled +
+      Percentage_Bin + recalculated features)
 
-6. DATA QUALITY OUTCOME
-   - Missing values: 0 remaining
-   - Duplicates: 0 remaining
-   - Out-of-range scores: 0 remaining
-   - Student_ID format: Standardized (uppercase, no spaces)
+6. VALIDATION AND SANITY CHECKS
+   - All percentage values confirmed within [0, 100]
+   - All 5 class categories confirmed present after assignment
+   - Min/Max percentage verified per class:
+       Fail         : 0.00  - 39.99
+       Pass Class   : 40.00 - 49.99
+       Lower Class  : 50.00 - 59.99
+       Second Class : 60.00 - 69.99
+       First Class  : 70.00 - 100.00
+   - No out-of-range records found after cleaning
+
+7. DATA QUALITY OUTCOME
+   - Missing values        : 0 remaining
+   - Duplicate rows        : 0 remaining
+   - Out-of-range scores   : 0 remaining
+   - Student_ID format     : Standardized (uppercase, no spaces)
+   - Unique Student IDs    : 20,000 confirmed
+
+8. TOOLS AND LIBRARIES USED
+   - pandas        : Data loading, manipulation, imputation
+   - numpy         : Numerical operations, random injections
+   - matplotlib    : Data visualization (pie charts, boxplots)
+   - scipy         : Z-score outlier detection
+   - scikit-learn  : MinMaxScaler for feature scaling
+   - openpyxl      : Excel data warehouse file creation
+   - math          : Decimal scaling computation
+
+=================================================================
+END OF REPORT - 25RP18183
 =================================================================
